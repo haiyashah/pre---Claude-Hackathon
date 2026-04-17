@@ -1,0 +1,6 @@
+streamlit
+langchain-google-genai
+langgraph
+pymilvus
+pdfminer.six
+requests
