@@ -45,8 +45,8 @@ Better document handling
 External integrations
 
 Team \
-Backend:
-Frontend:
+Backend: both 
+Frontend: both
 
 Demo \
 Input example
