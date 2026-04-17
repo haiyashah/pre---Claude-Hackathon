@@ -1,0 +1,10 @@
+streamlit
+anthropic
+langgraph
+langchain-core
+pymilvus
+pdfminer.six
+requests
+sentence-transformers
+torch
+numpy
