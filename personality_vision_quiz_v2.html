@@ -1,0 +1,692 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nunito', sans-serif; min-height: 100vh; background: #0d0b1e; }
+#app { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
+.stars { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+.star { position:absolute; background:white; border-radius:50%; animation:twinkle linear infinite; }
+@keyframes twinkle { 0%,100%{opacity:.2;transform:scale(1)} 50%{opacity:1;transform:scale(1.4)} }
+.screen { display:none; width:100%; max-width:680px; position:relative; z-index:1; }
+.screen.active { display:flex; flex-direction:column; align-items:center; }
+.intro-blob { background:linear-gradient(135deg,#6c2cff,#ff2c78); border-radius:40px; padding:52px 40px 44px; text-align:center; box-shadow:0 30px 80px rgba(108,44,255,.5); animation:float 4s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.intro-emoji { font-size:76px; margin-bottom:14px; display:block; }
+.intro-title { font-family:'Fredoka One',cursive; font-size:44px; color:#fff; line-height:1.1; margin-bottom:12px; }
+.intro-sub { font-size:17px; color:rgba(255,255,255,.85); line-height:1.6; margin-bottom:28px; }
+.tag-row { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:28px; }
+.tag { background:rgba(255,255,255,.2); color:#fff; border-radius:50px; padding:6px 18px; font-size:14px; font-weight:700; }
+.btn-start { background:#fff; color:#6c2cff; font-family:'Fredoka One',cursive; font-size:24px; border:none; border-radius:60px; padding:16px 52px; cursor:pointer; box-shadow:0 8px 32px rgba(0,0,0,.3); transition:transform .15s,box-shadow .15s; }
+.btn-start:hover { transform:scale(1.06); }
+.progress-wrap { width:100%; max-width:680px; margin-bottom:18px; }
+.progress-top { display:flex; justify-content:space-between; margin-bottom:8px; }
+.progress-label { color:rgba(255,255,255,.7); font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+.progress-bar { height:8px; background:rgba(255,255,255,.15); border-radius:20px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,#6c2cff,#ff2c78); border-radius:20px; transition:width .5s cubic-bezier(.4,0,.2,1); }
+.q-card { background:#1a1630; border-radius:28px; padding:28px; width:100%; max-width:680px; box-shadow:0 20px 60px rgba(0,0,0,.5); border:1.5px solid rgba(255,255,255,.08); }
+.q-type-badge { display:inline-block; background:linear-gradient(135deg,#6c2cff,#ff2c78); color:#fff; font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; border-radius:30px; padding:5px 16px; margin-bottom:14px; }
+.q-text { font-family:'Fredoka One',cursive; font-size:24px; color:#fff; line-height:1.3; margin-bottom:8px; }
+.q-hint { font-size:13px; color:rgba(255,255,255,.45); margin-bottom:18px; }
+.illusion-wrap { background:#f5f0e8; border-radius:20px; padding:16px; margin-bottom:20px; display:flex; justify-content:center; align-items:center; min-height:220px; }
+.illusion-wrap svg { max-width:100%; height:auto; }
+.options-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.opt-btn { background:rgba(255,255,255,.06); border:1.5px solid rgba(255,255,255,.12); border-radius:16px; padding:14px 16px; color:#fff; font-family:'Nunito',sans-serif; font-size:15px; font-weight:700; cursor:pointer; text-align:left; transition:all .2s; display:flex; align-items:center; gap:10px; }
+.opt-btn:hover { background:rgba(108,44,255,.25); border-color:rgba(108,44,255,.6); transform:translateY(-2px); }
+.opt-btn.selected { background:linear-gradient(135deg,rgba(108,44,255,.4),rgba(255,44,120,.3)); border-color:#ff2c78; }
+.opt-icon { font-size:24px; flex-shrink:0; }
+.two-img-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:8px; }
+.img-choice { border-radius:18px; overflow:hidden; cursor:pointer; border:3px solid transparent; transition:all .25s; position:relative; background:#f5f0e8; display:flex; flex-direction:column; align-items:center; }
+.img-choice:hover { border-color:#6c2cff; transform:scale(1.02); }
+.img-choice.selected { border-color:#ff2c78; box-shadow:0 0 28px rgba(255,44,120,.4); }
+.img-choice svg { width:100%; }
+.img-choice-label { background:linear-gradient(transparent,rgba(0,0,0,.75)); color:#fff; font-weight:800; font-size:14px; text-align:center; padding:18px 8px 10px; width:100%; }
+.btn-next { margin-top:20px; background:linear-gradient(135deg,#6c2cff,#ff2c78); color:#fff; font-family:'Fredoka One',cursive; font-size:22px; border:none; border-radius:60px; padding:14px 44px; cursor:pointer; box-shadow:0 8px 30px rgba(108,44,255,.4); transition:all .2s; opacity:.35; pointer-events:none; }
+.btn-next.ready { opacity:1; pointer-events:all; }
+.btn-next.ready:hover { transform:scale(1.05); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+.fade-in { animation:fadeUp .4s ease; }
+.result-card { background:#1a1630; border-radius:30px; padding:36px 32px; width:100%; max-width:680px; box-shadow:0 30px 80px rgba(0,0,0,.6); border:1.5px solid rgba(255,255,255,.1); text-align:center; }
+.result-aura { width:110px; height:110px; border-radius:50%; margin:0 auto 18px; display:flex; align-items:center; justify-content:center; font-size:54px; animation:pulseAura 3s ease-in-out infinite; }
+@keyframes pulseAura { 0%,100%{box-shadow:0 0 28px rgba(108,44,255,.4)} 50%{box-shadow:0 0 56px rgba(255,44,120,.6)} }
+.result-label { font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; color:#ff2c78; margin-bottom:8px; }
+.result-title { font-family:'Fredoka One',cursive; font-size:38px; color:#fff; margin-bottom:10px; line-height:1.2; }
+.result-tagline { font-size:17px; color:rgba(255,255,255,.7); line-height:1.6; margin-bottom:24px; }
+.traits-row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:24px; }
+.trait-pill { background:rgba(108,44,255,.25); border:1px solid rgba(108,44,255,.4); border-radius:30px; padding:7px 16px; font-size:13px; font-weight:700; color:#c4b5fd; }
+.result-sections { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; text-align:left; }
+.result-box { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:18px; }
+.result-box-icon { font-size:26px; margin-bottom:6px; }
+.result-box-title { font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,.45); margin-bottom:5px; }
+.result-box-text { font-size:14px; color:#fff; font-weight:600; line-height:1.5; }
+.suppress-box { background:linear-gradient(135deg,rgba(108,44,255,.2),rgba(255,44,120,.15)); border:1.5px solid rgba(108,44,255,.3); border-radius:18px; padding:18px 22px; margin-bottom:22px; text-align:left; }
+.suppress-title { font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:#a78bfa; margin-bottom:7px; }
+.suppress-text { font-size:14px; color:rgba(255,255,255,.8); line-height:1.6; }
+.try-box { background:rgba(255,255,255,.05); border-radius:18px; padding:18px 22px; margin-bottom:24px; text-align:left; }
+.btn-restart { background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.2); color:#fff; font-family:'Fredoka One',cursive; font-size:20px; border-radius:60px; padding:13px 38px; cursor:pointer; transition:all .2s; }
+.btn-restart:hover { background:rgba(255,255,255,.18); transform:scale(1.04); }
+.confetti-piece { position:fixed; pointer-events:none; z-index:9999; border-radius:2px; animation:confettiFall linear forwards; }
+@keyframes confettiFall { 0%{opacity:1;transform:translateY(-20px) rotate(0deg)} 100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div id="app">
+
+  <div class="screen active" id="screen-intro">
+    <div class="intro-blob fade-in">
+      <span class="intro-emoji">🧠✨</span>
+      <div class="intro-title">What Does Your Mind See?</div>
+      <div class="intro-sub">A magical quiz that reads your personality through what you notice first — illusions, images & instincts!</div>
+      <div class="tag-row">
+        <span class="tag">10 Questions</span>
+        <span class="tag">Optical Illusions</span>
+        <span class="tag">Your True Self</span>
+        <span class="tag">~3 mins</span>
+      </div>
+      <button class="btn-start" onclick="startQuiz()">Let's Go! 🚀</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-question">
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span class="progress-label" id="q-counter">Question 1 of 10</span>
+        <span class="progress-label" id="q-pts">🌟 0 pts</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="q-card fade-in" id="q-card"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Next ➜</button>
+  </div>
+
+  <div class="screen" id="screen-result"></div>
+</div>
+
+<script>
+// ── STARS ──────────────────────────────────────────────────────
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<70;i++){
+    const s=document.createElement('div'); s.className='star';
+    const sz=Math.random()*3+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s;`;
+    c.appendChild(s);
+  }
+})();
+
+// ── INLINE SVG ILLUSIONS ─────────────────────────────────────
+const ILLUSIONS = {
+
+  // Classic Old Woman / Young Woman (Boring 1915 style)
+  oldyoung: `<svg viewBox="0 0 300 340" xmlns="http://www.w3.org/2000/svg" width="260" height="300">
+    <rect width="300" height="340" fill="#f5f0e8"/>
+    <!-- Body/coat silhouette -->
+    <ellipse cx="150" cy="290" rx="90" ry="60" fill="#3d2b1a"/>
+    <!-- Neck -->
+    <rect x="130" y="210" width="40" height="40" fill="#3d2b1a"/>
+    <!-- Head base -->
+    <ellipse cx="150" cy="185" rx="55" ry="65" fill="#c8a882"/>
+    <!-- Hair / hat top -->
+    <ellipse cx="150" cy="125" rx="58" ry="38" fill="#3d2b1a"/>
+    <!-- Chin/jaw for old woman = chin of young woman looking away -->
+    <path d="M110 205 Q100 230 115 245 Q135 260 150 255 Q165 260 185 245 Q200 230 190 205" fill="#c8a882"/>
+    <!-- Big nose of old = profile nose of young -->
+    <path d="M108 195 Q90 210 95 230 Q100 240 115 238" fill="#c8a882" stroke="#a07850" stroke-width="1.5" fill-opacity="0"/>
+    <path d="M108 195 Q88 212 93 232 Q100 243 118 240" fill="none" stroke="#7a5c3a" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Eye of young woman = ear of old -->
+    <ellipse cx="190" cy="175" rx="14" ry="10" fill="#e8d8c0"/>
+    <ellipse cx="193" cy="175" rx="9" ry="7" fill="#3d2b1a"/>
+    <!-- Mouth/lips of young = necklace of old -->
+    <path d="M125 235 Q150 248 175 235" fill="none" stroke="#8b4a3a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Eyelash / eyebrow of young -->
+    <path d="M155 148 Q170 140 185 148" fill="none" stroke="#3d2b1a" stroke-width="3" stroke-linecap="round"/>
+    <!-- Chin detail -->
+    <path d="M128 248 Q150 270 172 248" fill="none" stroke="#a07850" stroke-width="1.5"/>
+    <!-- Label -->
+    <text x="150" y="328" text-anchor="middle" font-family="Nunito,sans-serif" font-size="13" fill="#7a5c3a" font-weight="700">👀 Look carefully — two faces!</text>
+  </svg>`,
+
+  // Duck / Rabbit classic
+  duckrabbit: `<svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg" width="280" height="220">
+    <rect width="320" height="260" fill="#f5f0e8"/>
+    <!-- Main head body -->
+    <ellipse cx="155" cy="130" rx="80" ry="75" fill="#3d2b1a"/>
+    <!-- Rabbit ear 1 (left, pointing up) -->
+    <ellipse cx="105" cy="52" rx="18" ry="48" fill="#3d2b1a" transform="rotate(-8,105,52)"/>
+    <!-- Rabbit ear 2 -->
+    <ellipse cx="140" cy="45" rx="18" ry="52" fill="#3d2b1a" transform="rotate(5,140,45)"/>
+    <!-- Face fill -->
+    <ellipse cx="162" cy="135" rx="72" ry="68" fill="#c8a882"/>
+    <!-- Duck bill / rabbit mouth pointing right -->
+    <path d="M228 118 Q265 128 258 148 Q248 158 228 148 Z" fill="#e8a030"/>
+    <!-- Eye -->
+    <circle cx="148" cy="108" r="14" fill="#fff"/>
+    <circle cx="150" cy="110" r="9" fill="#1a1010"/>
+    <circle cx="154" cy="106" r="3" fill="#fff"/>
+    <!-- Nostril for rabbit / duck detail -->
+    <circle cx="210" cy="135" r="4" fill="#a07840"/>
+    <!-- Label -->
+    <text x="160" y="236" text-anchor="middle" font-family="Nunito,sans-serif" font-size="13" fill="#7a5c3a" font-weight="700">🐰 Rabbit or 🦆 Duck?</text>
+    <!-- small arrows hinting both -->
+    <text x="58" y="130" font-family="Nunito,sans-serif" font-size="11" fill="#9a7a5a">rabbit</text>
+    <text x="236" y="130" font-family="Nunito,sans-serif" font-size="11" fill="#9a7a5a">duck</text>
+  </svg>`,
+
+  // Vase / Two faces (Rubin)
+  vasefaces: `<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" width="260" height="260">
+    <rect width="300" height="300" fill="#1a1010"/>
+    <!-- Left face silhouette -->
+    <path d="M0,0 L0,300 L80,300 Q60,275 58,255 Q55,235 65,215 Q80,195 82,175 Q85,155 72,135 Q60,120 62,100 Q65,75 80,55 Q90,38 95,20 L95,0 Z" fill="#c8a030"/>
+    <!-- Right face silhouette (mirror) -->
+    <path d="M300,0 L300,300 L220,300 Q240,275 242,255 Q245,235 235,215 Q220,195 218,175 Q215,155 228,135 Q240,120 238,100 Q235,75 220,55 Q210,38 205,20 L205,0 Z" fill="#c8a030"/>
+    <!-- Vase in middle (white/cream) -->
+    <path d="M95,0 Q100,20 105,38 Q115,65 112,90 Q108,118 100,138 Q88,162 88,180 Q88,200 100,218 Q115,240 118,262 Q120,278 120,300 L180,300 Q180,278 182,262 Q185,240 200,218 Q212,200 212,180 Q212,162 200,138 Q192,118 188,90 Q185,65 195,38 Q200,20 205,0 Z" fill="#f5f0e8"/>
+    <!-- Vase rim top -->
+    <rect x="85" y="0" width="130" height="8" rx="4" fill="#f5f0e8"/>
+    <!-- Label -->
+    <text x="150" y="292" text-anchor="middle" font-family="Nunito,sans-serif" font-size="12" fill="#c8a030" font-weight="700">🏺 Vase or 👥 Two Faces?</text>
+  </svg>`,
+
+  // "What colour first" visual — abstract swirling blobs
+  colour: `<svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" width="280" height="240">
+    <rect width="300" height="260" fill="#0d0b1e" rx="16"/>
+    <circle cx="80" cy="90" r="65" fill="#3b82f6" opacity=".8"/>
+    <circle cx="200" cy="80" r="55" fill="#f59e0b" opacity=".8"/>
+    <circle cx="75" cy="175" r="55" fill="#ef4444" opacity=".8"/>
+    <circle cx="210" cy="180" r="60" fill="#10b981" opacity=".8"/>
+    <circle cx="150" cy="130" r="48" fill="#fff" opacity=".08"/>
+    <text x="150" y="248" text-anchor="middle" font-family="Nunito,sans-serif" font-size="13" fill="rgba(255,255,255,.6)" font-weight="700">Which colour did your mind see?</text>
+  </svg>`,
+
+  // Arrows going both directions illusion (perspective / which direction)
+  arrows: `<svg viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg" width="280" height="220">
+    <rect width="300" height="240" fill="#f5f0e8" rx="16"/>
+    <!-- Arrow pointing right -->
+    <line x1="30" y1="70" x2="240" y2="70" stroke="#3d2b1a" stroke-width="5" stroke-linecap="round"/>
+    <path d="M240,55 L265,70 L240,85" fill="#3d2b1a"/>
+    <path d="M30,55 L5,70 L30,85" fill="#f5f0e8" stroke="#3d2b1a" stroke-width="2"/>
+    <!-- Arrow pointing left -->
+    <line x1="270" y1="140" x2="60" y2="140" stroke="#3d2b1a" stroke-width="5" stroke-linecap="round"/>
+    <path d="M60,125 L35,140 L60,155" fill="#3d2b1a"/>
+    <path d="M270,125 L295,140 L270,155" fill="#f5f0e8" stroke="#3d2b1a" stroke-width="2"/>
+    <!-- Middle arrow both -->
+    <line x1="60" y1="195" x2="240" y2="195" stroke="#8b4a3a" stroke-width="4" stroke-dasharray="8,6" stroke-linecap="round"/>
+    <path d="M240,183 L262,195 L240,207" fill="#8b4a3a"/>
+    <path d="M60,183 L38,195 L60,207" fill="#8b4a3a"/>
+    <text x="150" y="228" text-anchor="middle" font-family="Nunito,sans-serif" font-size="12" fill="#7a5c3a" font-weight="700">Which arrow did you see first?</text>
+  </svg>`,
+
+  // Two scenes for choice Q — Space vs Forest as SVG
+  space: `<svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" width="280" height="200">
+    <rect width="280" height="200" fill="#060918" rx="12"/>
+    <circle cx="140" cy="90" r="45" fill="#1e3a6e"/>
+    <circle cx="140" cy="90" r="38" fill="#2a4f96"/>
+    <circle cx="140" cy="90" r="28" fill="#3b6bc4"/>
+    <circle cx="140" cy="90" r="16" fill="#60a5fa" opacity=".5"/>
+    <!-- rings -->
+    <ellipse cx="140" cy="90" rx="70" ry="14" fill="none" stroke="#a78bfa" stroke-width="4" opacity=".7"/>
+    <!-- stars -->
+    <circle cx="30" cy="25" r="2" fill="white" opacity=".9"/>
+    <circle cx="70" cy="15" r="1.5" fill="white" opacity=".8"/>
+    <circle cx="220" cy="30" r="2" fill="white"/>
+    <circle cx="250" cy="60" r="1.5" fill="white" opacity=".7"/>
+    <circle cx="15" cy="80" r="1" fill="white"/>
+    <circle cx="260" cy="130" r="2" fill="white" opacity=".8"/>
+    <circle cx="40" cy="155" r="1.5" fill="white" opacity=".6"/>
+    <circle cx="240" cy="170" r="1" fill="white"/>
+    <circle cx="100" cy="170" r="1.5" fill="white" opacity=".5"/>
+    <!-- nebula blobs -->
+    <ellipse cx="55" cy="120" rx="30" ry="18" fill="#7c3aed" opacity=".3"/>
+    <ellipse cx="230" cy="100" rx="25" ry="15" fill="#db2777" opacity=".25"/>
+  </svg>`,
+
+  forest: `<svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" width="280" height="200">
+    <rect width="280" height="200" fill="#c8e6a0" rx="12"/>
+    <!-- Sky -->
+    <rect width="280" height="90" fill="#87ceeb" rx="12"/>
+    <!-- Ground -->
+    <rect x="0" y="150" width="280" height="50" fill="#5d4037" rx="0"/>
+    <rect x="0" y="148" width="280" height="10" fill="#388e3c"/>
+    <!-- Trees back -->
+    <polygon points="40,90 70,30 100,90" fill="#2e7d32"/>
+    <polygon points="60,90 90,20 120,90" fill="#388e3c"/>
+    <polygon points="160,90 190,25 220,90" fill="#2e7d32"/>
+    <polygon points="180,90 210,18 240,90" fill="#1b5e20"/>
+    <!-- Trees front -->
+    <polygon points="10,148 50,60 90,148" fill="#1b5e20"/>
+    <polygon points="100,148 145,50 190,148" fill="#2e7d32"/>
+    <polygon points="190,148 230,65 270,148" fill="#1b5e20"/>
+    <!-- Trunks -->
+    <rect x="47" y="140" width="8" height="16" fill="#5d4037"/>
+    <rect x="138" y="140" width="10" height="16" fill="#4e342e"/>
+    <rect x="223" y="140" width="8" height="16" fill="#5d4037"/>
+    <!-- Sun -->
+    <circle cx="230" cy="38" r="22" fill="#fff176"/>
+    <!-- Path -->
+    <path d="M120,200 Q140,165 160,200" fill="#a1887f"/>
+  </svg>`,
+
+  alone: `<svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" width="280" height="200">
+    <rect width="280" height="200" fill="#e8d5b7" rx="12"/>
+    <!-- sunset sky -->
+    <rect width="280" height="130" fill="#ff8c42" rx="12"/>
+    <rect y="80" width="280" height="55" fill="#e07038"/>
+    <!-- Ground -->
+    <rect y="135" width="280" height="65" fill="#c8a882"/>
+    <!-- Bench shadow -->
+    <rect x="75" y="150" width="130" height="5" fill="rgba(0,0,0,.15)" rx="2"/>
+    <!-- Bench -->
+    <rect x="78" y="138" width="124" height="8" fill="#5d4037" rx="3"/>
+    <rect x="88" y="118" width="104" height="6" fill="#6d4c41" rx="2"/>
+    <rect x="88" y="138" width="8" height="22" fill="#5d4037" rx="2"/>
+    <rect x="184" y="138" width="8" height="22" fill="#5d4037" rx="2"/>
+    <rect x="116" y="138" width="8" height="22" fill="#5d4037" rx="2"/>
+    <rect x="156" y="138" width="8" height="22" fill="#5d4037" rx="2"/>
+    <!-- Person sitting -->
+    <circle cx="140" cy="108" r="13" fill="#3d2b1a"/>
+    <rect x="128" y="120" width="24" height="18" fill="#3d2b1a" rx="4"/>
+    <!-- legs hanging -->
+    <rect x="130" y="136" width="8" height="14" fill="#3d2b1a" rx="3"/>
+    <rect x="142" y="136" width="8" height="14" fill="#3d2b1a" rx="3"/>
+    <!-- Sun setting -->
+    <circle cx="140" cy="55" r="30" fill="#fff176" opacity=".85"/>
+    <circle cx="140" cy="72" r="30" fill="#ff8c42"/>
+    <!-- Horizon glow -->
+    <ellipse cx="140" cy="135" rx="100" ry="10" fill="#ff6b2b" opacity=".4"/>
+  </svg>`,
+
+  friends: `<svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" width="280" height="200">
+    <rect width="280" height="200" fill="#fce4d6" rx="12"/>
+    <!-- Night bg -->
+    <rect width="280" height="200" fill="#1a0a2e" rx="12"/>
+    <!-- Lights / festive -->
+    <circle cx="40" cy="20" r="5" fill="#f59e0b" opacity=".9"/>
+    <circle cx="90" cy="15" r="4" fill="#ef4444" opacity=".9"/>
+    <circle cx="140" cy="20" r="5" fill="#10b981" opacity=".9"/>
+    <circle cx="190" cy="15" r="4" fill="#3b82f6" opacity=".9"/>
+    <circle cx="240" cy="20" r="5" fill="#f59e0b" opacity=".9"/>
+    <!-- String of lights -->
+    <path d="M20,18 Q65,10 110,18 Q155,26 200,16 Q230,10 260,18" fill="none" stroke="#c8a030" stroke-width="1.5"/>
+    <!-- Ground -->
+    <rect y="165" width="280" height="35" fill="#2d1a5e"/>
+    <!-- Person 1 -->
+    <circle cx="85" cy="105" r="16" fill="#c8a882"/>
+    <rect x="68" y="120" width="34" height="45" fill="#6c2cff" rx="6"/>
+    <!-- Person 2 -->
+    <circle cx="140" cy="98" r="18" fill="#a0785a"/>
+    <rect x="122" y="115" width="36" height="50" fill="#ff2c78" rx="6"/>
+    <!-- Person 3 -->
+    <circle cx="195" cy="105" r="16" fill="#c8a882"/>
+    <rect x="178" y="120" width="34" height="45" fill="#059669" rx="6"/>
+    <!-- Arms around each other -->
+    <path d="M100,130 Q120,120 122,130" fill="none" stroke="#c8a882" stroke-width="8" stroke-linecap="round"/>
+    <path d="M158,125 Q175,118 178,128" fill="none" stroke="#a0785a" stroke-width="8" stroke-linecap="round"/>
+    <!-- Stars -->
+    <circle cx="30" cy="50" r="2" fill="white" opacity=".8"/>
+    <circle cx="255" cy="45" r="2" fill="white" opacity=".7"/>
+    <circle cx="140" cy="55" r="1.5" fill="white" opacity=".6"/>
+    <!-- Confetti dots -->
+    <circle cx="55" cy="80" r="4" fill="#f59e0b" opacity=".7"/>
+    <circle cx="225" cy="75" r="4" fill="#ef4444" opacity=".7"/>
+    <circle cx="110" cy="70" r="3" fill="#10b981" opacity=".7"/>
+    <circle cx="175" cy="68" r="3" fill="#3b82f6" opacity=".7"/>
+    <!-- balloons -->
+    <circle cx="240" cy="95" r="18" fill="#ef4444" opacity=".8"/>
+    <line x1="240" y1="113" x2="238" y2="145" stroke="#c0392b" stroke-width="1.5"/>
+    <circle cx="35" cy="92" r="16" fill="#3b82f6" opacity=".8"/>
+    <line x1="35" y1="108" x2="37" y2="140" stroke="#2980b9" stroke-width="1.5"/>
+  </svg>`
+};
+
+// ── QUESTIONS ─────────────────────────────────────────────────
+const QUESTIONS = [
+  {
+    id:1, type:'illusion', badge:'🔍 Optical Illusion',
+    text:'What do you see FIRST in this image?',
+    hint:'Trust your gut — go with your very first instinct!',
+    illusion:'oldyoung',
+    options:[
+      {icon:'👵',text:'An old woman',value:'old_woman'},
+      {icon:'💃',text:'A young lady',value:'young_woman'},
+      {icon:'🔄',text:'I see both at once',value:'both'},
+      {icon:'🌫️',text:'Just shapes & lines',value:'abstract'}
+    ],
+    traits:{old_woman:['wise','detail'],young_woman:['optimistic','future'],both:['balanced','adaptable'],abstract:['analytical','logical']}
+  },
+  {
+    id:2, type:'word', badge:'💭 First Thought',
+    text:"You're standing at the edge of a forest. Your FIRST feeling?",
+    hint:"Don't overthink — first answer wins!",
+    illusion:null,
+    options:[
+      {icon:'🌲',text:"Wonder — what's in there?",value:'wonder'},
+      {icon:'😨',text:'A little scared',value:'fear'},
+      {icon:'😌',text:'Calm & peaceful',value:'calm'},
+      {icon:'🏃',text:'Excited to explore!',value:'adventure'}
+    ],
+    traits:{wonder:['curious','creative'],fear:['cautious','empathetic'],calm:['peaceful','gentle'],adventure:['brave','bold']}
+  },
+  {
+    id:3, type:'illusion', badge:'🔍 Optical Illusion',
+    text:'What do you see FIRST — duck or rabbit?',
+    hint:'Stare for 1 second then choose!',
+    illusion:'duckrabbit',
+    options:[
+      {icon:'🦆',text:"A duck / bird (beak on right)",value:'duck'},
+      {icon:'🐰',text:"A rabbit (ears on left)",value:'rabbit'},
+      {icon:'🔄',text:'I flip between both',value:'both'},
+      {icon:'🤷',text:'Just a blob shape',value:'abstract'}
+    ],
+    traits:{duck:['grounded','realistic'],rabbit:['playful','imaginative'],both:['flexible','open'],abstract:['analytical','methodical']}
+  },
+  {
+    id:4, type:'choice', badge:'🎨 Visual Instinct',
+    text:'Which world speaks to your soul right now?',
+    hint:'Heart, not head — go with feeling!',
+    choiceA:{illusion:'space',label:'🌌 Cosmic & vast'},
+    choiceB:{illusion:'forest',label:'🌿 Green & grounded'},
+    traits:{A:['dreamer','visionary','big-picture'],B:['nurturing','present','nature-lover']}
+  },
+  {
+    id:5, type:'word', badge:'💡 Quick Fire',
+    text:'First word that pops up when you hear "HOME"?',
+    hint:'Go with whatever came to mind first!',
+    illusion:null,
+    options:[
+      {icon:'🏠',text:'Safety & warmth',value:'safe'},
+      {icon:'🌍',text:'Somewhere I haven\'t found yet',value:'seeking'},
+      {icon:'👨‍👩‍👧',text:'The people I love',value:'people'},
+      {icon:'📦',text:'A place I want to redesign',value:'creative'}
+    ],
+    traits:{safe:['stable','loyal','comforter'],seeking:['restless','adventurous'],people:['social','warm'],creative:['maker','aesthetic']}
+  },
+  {
+    id:6, type:'illusion', badge:'🔍 Optical Illusion',
+    text:'Vase or two faces staring at each other?',
+    hint:'First glance — what popped out?',
+    illusion:'vasefaces',
+    options:[
+      {icon:'🏺',text:'A vase / goblet',value:'vase'},
+      {icon:'👥',text:'Two faces looking at each other',value:'faces'},
+      {icon:'🔄',text:'It kept switching!',value:'switch'},
+      {icon:'🤔',text:'Had to think hard',value:'thinker'}
+    ],
+    traits:{vase:['practical','object-focused'],faces:['empathetic','people-oriented'],switch:['flexible','adaptable'],thinker:['introspective','deep']}
+  },
+  {
+    id:7, type:'illusion', badge:'🌈 Colour Instinct',
+    text:'Close your eyes 3 seconds. What colour did you see?',
+    hint:'Go with the colour that felt strongest',
+    illusion:'colour',
+    options:[
+      {icon:'🔵',text:'Blue or Purple',value:'blue'},
+      {icon:'🟡',text:'Yellow or Gold',value:'yellow'},
+      {icon:'🟢',text:'Green or Teal',value:'green'},
+      {icon:'🔴',text:'Red or Orange',value:'red'}
+    ],
+    traits:{blue:['calm','intuitive','thinker'],yellow:['joyful','expressive','leader'],green:['healer','balanced','grounded'],red:['passionate','courageous','driven']}
+  },
+  {
+    id:8, type:'choice', badge:'🎨 Visual Instinct',
+    text:'Which of these calls to you more?',
+    hint:'Pure feeling — no logic!',
+    choiceA:{illusion:'alone',label:'🌅 Peaceful solitude'},
+    choiceB:{illusion:'friends',label:'🎉 Joy with friends'},
+    traits:{A:['introspective','independent','deep-thinker'],B:['social','warm','team-player']}
+  },
+  {
+    id:9, type:'illusion', badge:'⚡ Direction Check',
+    text:'Which arrow did you notice FIRST?',
+    hint:'Just a gut check!',
+    illusion:'arrows',
+    options:[
+      {icon:'➡️',text:'Top arrow pointing RIGHT',value:'right'},
+      {icon:'⬅️',text:'Middle arrow pointing LEFT',value:'left'},
+      {icon:'↔️',text:'The double-headed bottom one',value:'both'},
+      {icon:'🌀',text:'All three confused me!',value:'confused'}
+    ],
+    traits:{right:['forward-thinker','leader'],left:['reflective','cautious'],both:['balanced','big-picture'],confused:['creative','nonlinear']}
+  },
+  {
+    id:10, type:'word', badge:'🔮 Final Question',
+    text:'In your heart — what were you BORN to do?',
+    hint:'Your gut knows. Trust it.',
+    illusion:null,
+    options:[
+      {icon:'🎨',text:'Create something beautiful',value:'creator'},
+      {icon:'🤝',text:'Help and heal others',value:'healer'},
+      {icon:'🗺️',text:'Explore and discover',value:'explorer'},
+      {icon:'💡',text:'Solve problems and build things',value:'builder'}
+    ],
+    traits:{creator:['artistic','expressive'],healer:['compassionate','giving'],explorer:['curious','free-spirited'],builder:['strategic','driven']}
+  }
+];
+
+// ── PERSONALITIES ─────────────────────────────────────────────
+const PERSONALITIES = {
+  dreamer:{
+    emoji:'🌌',bg:'linear-gradient(135deg,#3b0764,#6c2cff)',
+    title:'The Visionary Dreamer',
+    tagline:'Your mind lives in worlds most people never visit. You see magic where others see the ordinary.',
+    trueself:'You are someone whose imagination is genuinely extraordinary — built to think beyond what exists and make the impossible feel obvious.',
+    gift:'Turning ideas into worlds, through art, stories, inventions, or businesses that didn\'t exist before you.',
+    growth:'You are also a quiet leader — you can bridge visions to reality better than you think. Don\'t hold that back.',
+    suppress:'You might be suppressing your desire to lead. Deep down you want your ideas to matter to the world — let them!',
+    try:['Start one creative project this week — just begin, don\'t plan','Share one wild idea with someone you trust','Journal your biggest dream without filtering it — let it all out'],
+    traits:['Imaginative','Intuitive','Empathetic','Creative','Independent','Deep Thinker']
+  },
+  explorer:{
+    emoji:'🗺️',bg:'linear-gradient(135deg,#064e3b,#059669)',
+    title:'The Free-Spirited Explorer',
+    tagline:'Life is your adventure — you were never built to stay in one place, mentally or physically.',
+    trueself:'You crave newness, connection, and meaning. You light up any room you walk into and make others feel alive around you.',
+    gift:'Seeing opportunities where others see walls — and bringing people along for the ride.',
+    growth:'Your adaptability is rare. You can thrive in chaos where others freeze solid.',
+    suppress:'You may be suppressing your need for deep roots. Exploring doesn\'t mean you can\'t also belong somewhere deeply.',
+    try:['Plan one spontaneous adventure this month — even a small one','Document your journey — your stories genuinely matter','Learn one skill completely outside your comfort zone'],
+    traits:['Adventurous','Brave','Curious','Adaptable','Social','Free-Spirited']
+  },
+  healer:{
+    emoji:'💚',bg:'linear-gradient(135deg,#065f46,#10b981)',
+    title:'The Compassionate Healer',
+    tagline:'People feel safe around you. You carry others\' pain like it\'s your own — and that is a superpower.',
+    trueself:'You are woven from empathy. Built to hold space, to listen deeply, to make people feel less alone in the world.',
+    gift:'Sensing what others feel before they say it — and responding with exactly what they need.',
+    growth:'You are stronger than you realise. Your sensitivity is not weakness — it\'s your radar and your greatest power.',
+    suppress:'You might be suppressing your own needs. You give so much — when did you last truly let someone take care of YOU?',
+    try:['Say no to one thing this week without guilt','Write down 3 things you genuinely need right now','Let yourself be helped by someone who cares about you'],
+    traits:['Empathetic','Warm','Nurturing','Intuitive','Loyal','Deep Listener']
+  },
+  builder:{
+    emoji:'⚡',bg:'linear-gradient(135deg,#78350f,#f59e0b)',
+    title:'The Driven Builder',
+    tagline:'You don\'t just dream — you execute. Your mind sees systems, solutions, and what needs to happen next.',
+    trueself:'You are wired to create impact at scale. You see problems as puzzles begging to be solved — and you\'re usually right.',
+    gift:'Taking chaos and building structure, strategy, and momentum out of nothing.',
+    growth:'You carry deep emotional intelligence — you just don\'t always show it. It\'s one of your most powerful tools.',
+    suppress:'You might be suppressing your creative side. Behind all that strategy lives someone who wants to make something beautiful.',
+    try:['Identify the project that excites you most — start it today','Let your creativity out in one small way every day','Share your vision with someone — your ideas deserve an audience'],
+    traits:['Strategic','Driven','Logical','Courageous','Focused','Natural Leader']
+  }
+};
+
+const TRAIT_MAP = {
+  wise:'healer',detail:'builder',optimistic:'dreamer',future:'dreamer',balanced:'explorer',
+  adaptable:'explorer',analytical:'builder',logical:'builder',curious:'explorer',creative:'dreamer',
+  cautious:'healer',empathetic:'healer',peaceful:'healer',gentle:'healer',brave:'explorer',
+  bold:'explorer',grounded:'builder',realistic:'builder',playful:'dreamer',imaginative:'dreamer',
+  flexible:'explorer',open:'explorer',dreamer:'dreamer',visionary:'dreamer','big-picture':'dreamer',
+  nurturing:'healer',present:'healer','nature-lover':'healer',stable:'builder',loyal:'healer',
+  comforter:'healer',restless:'explorer',adventurous:'explorer',social:'explorer',warm:'healer',
+  maker:'builder',aesthetic:'dreamer',practical:'builder','object-focused':'builder',
+  'people-oriented':'healer',introspective:'dreamer',deep:'dreamer',thinker:'builder',
+  calm:'healer',intuitive:'dreamer',joyful:'explorer',expressive:'dreamer',leader:'builder',
+  'deep-thinker':'dreamer','team-player':'explorer',passionate:'builder',courageous:'builder',
+  driven:'builder',artistic:'dreamer',compassionate:'healer',giving:'healer','free-spirited':'explorer',
+  strategic:'builder',independent:'dreamer',methodical:'builder',seeking:'explorer',
+  'forward-thinker':'builder',reflective:'healer','big-picture':'dreamer',nonlinear:'dreamer'
+};
+
+// ── STATE ──────────────────────────────────────────────────────
+let currentQ=0, selectedAnswer=null;
+let traitScores={dreamer:0,explorer:0,healer:0,builder:0};
+let pendingTraits=[];
+
+// ── HELPERS ────────────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function startQuiz(){
+  currentQ=0; selectedAnswer=null;
+  traitScores={dreamer:0,explorer:0,healer:0,builder:0};
+  pendingTraits=[];
+  showScreen('screen-question');
+  renderQuestion();
+}
+
+// ── RENDER ─────────────────────────────────────────────────────
+function renderQuestion(){
+  const q=QUESTIONS[currentQ];
+  document.getElementById('progress-fill').style.width=((currentQ/QUESTIONS.length)*100)+'%';
+  document.getElementById('q-counter').textContent=`Question ${currentQ+1} of ${QUESTIONS.length}`;
+  selectedAnswer=null;
+  document.getElementById('btn-next').classList.remove('ready');
+
+  let html=`<div class="q-type-badge">${q.badge}</div>`;
+  html+=`<div class="q-text">${q.text}</div>`;
+  if(q.hint) html+=`<div class="q-hint">💫 ${q.hint}</div>`;
+
+  if(q.type==='choice'){
+    html+=`<div class="two-img-grid">
+      <div class="img-choice" id="choiceA" onclick="selectChoice('A')">
+        ${ILLUSIONS[q.choiceA.illusion]}
+        <div class="img-choice-label">${q.choiceA.label}</div>
+      </div>
+      <div class="img-choice" id="choiceB" onclick="selectChoice('B')">
+        ${ILLUSIONS[q.choiceB.illusion]}
+        <div class="img-choice-label">${q.choiceB.label}</div>
+      </div>
+    </div>`;
+  } else {
+    if(q.illusion){
+      html+=`<div class="illusion-wrap">${ILLUSIONS[q.illusion]}</div>`;
+    }
+    html+=`<div class="options-grid">`;
+    q.options.forEach(opt=>{
+      html+=`<button class="opt-btn" onclick="selectOpt('${opt.value}',this)">
+        <span class="opt-icon">${opt.icon}</span>
+        <span>${opt.text}</span>
+      </button>`;
+    });
+    html+=`</div>`;
+  }
+
+  const card=document.getElementById('q-card');
+  card.innerHTML=html;
+  card.style.animation='none'; card.offsetHeight; card.style.animation='fadeUp .4s ease';
+}
+
+function selectOpt(value,btn){
+  document.querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedAnswer=value;
+  const q=QUESTIONS[currentQ];
+  pendingTraits=(q.traits&&q.traits[value])||[];
+  document.getElementById('btn-next').classList.add('ready');
+}
+
+function selectChoice(side){
+  document.getElementById('choiceA').classList.remove('selected');
+  document.getElementById('choiceB').classList.remove('selected');
+  document.getElementById('choice'+side).classList.add('selected');
+  selectedAnswer=side;
+  const q=QUESTIONS[currentQ];
+  pendingTraits=(q.traits&&q.traits[side])||[];
+  document.getElementById('btn-next').classList.add('ready');
+}
+
+function nextQuestion(){
+  if(!selectedAnswer) return;
+  pendingTraits.forEach(t=>{
+    const m=TRAIT_MAP[t.toLowerCase()];
+    if(m) traitScores[m]++;
+  });
+  pendingTraits=[];
+  currentQ++;
+  if(currentQ>=QUESTIONS.length) showResult();
+  else renderQuestion();
+}
+
+// ── RESULT ─────────────────────────────────────────────────────
+function showResult(){
+  let top='dreamer', best=-1;
+  Object.entries(traitScores).forEach(([k,v])=>{ if(v>best){best=v;top=k;} });
+  const p=PERSONALITIES[top];
+  const pills=p.traits.map(t=>`<span class="trait-pill">${t}</span>`).join('');
+  const tryHtml=p.try.map(t=>`<div style="padding:6px 0;font-size:14px;color:rgba(255,255,255,.8);border-bottom:1px solid rgba(255,255,255,.06);">✦ ${t}</div>`).join('');
+
+  document.getElementById('screen-result').innerHTML=`
+    <div class="result-card fade-in">
+      <div class="result-aura" style="background:${p.bg}">${p.emoji}</div>
+      <div class="result-label">Your Personality Type</div>
+      <div class="result-title">${p.title}</div>
+      <div class="result-tagline">${p.tagline}</div>
+      <div class="traits-row">${pills}</div>
+      <div class="result-sections">
+        <div class="result-box">
+          <div class="result-box-icon">🌟</div>
+          <div class="result-box-title">Your True Self</div>
+          <div class="result-box-text">${p.trueself}</div>
+        </div>
+        <div class="result-box">
+          <div class="result-box-icon">🎁</div>
+          <div class="result-box-title">Your Gift</div>
+          <div class="result-box-text">${p.gift}</div>
+        </div>
+        <div class="result-box" style="grid-column:1/-1">
+          <div class="result-box-icon">⚡</div>
+          <div class="result-box-title">Your Hidden Edge</div>
+          <div class="result-box-text">${p.growth}</div>
+        </div>
+      </div>
+      <div class="suppress-box">
+        <div class="suppress-title">🔮 What You Might Be Suppressing</div>
+        <div class="suppress-text">${p.suppress}</div>
+      </div>
+      <div class="try-box">
+        <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin-bottom:10px;">💡 Try This This Week</div>
+        ${tryHtml}
+      </div>
+      <button class="btn-restart" onclick="restartQuiz()">🔄 Try Again</button>
+    </div>`;
+  showScreen('screen-result');
+  launchConfetti();
+}
+
+function restartQuiz(){
+  currentQ=0; selectedAnswer=null;
+  traitScores={dreamer:0,explorer:0,healer:0,builder:0};
+  pendingTraits=[];
+  showScreen('screen-intro');
+}
+
+function launchConfetti(){
+  const cols=['#6c2cff','#ff2c78','#f59e0b','#10b981','#60a5fa','#fff'];
+  for(let i=0;i<70;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div'); el.className='confetti-piece';
+      const sz=6+Math.random()*10;
+      el.style.cssText=`left:${Math.random()*100}vw;top:-20px;background:${cols[Math.floor(Math.random()*cols.length)]};width:${sz}px;height:${sz}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.5+Math.random()*2}s;`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),4000);
+    },i*35);
+  }
+}
+</script>
+</body>
+</html>
