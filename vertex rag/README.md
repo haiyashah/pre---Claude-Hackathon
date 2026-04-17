@@ -1,3 +1,24 @@
+
+# 1. go into the folder
+cd vertex_rag   # or whatever your folder is called
+
+# 2. install dependencies
+pip install -r requirements.txt
+
+# 3. set your Claude API key
+export ANTHROPIC_API_KEY="your_key_here"   # Mac/Linux
+setx ANTHROPIC_API_KEY "your_key_here"     # Windows
+
+# 4. run the app
+streamlit run demo_mode.py
+
+
+
+We need to also create 2 more folders
+rag_index and sample_docs
+
+
+
 # 🔬 Vertex RAG — Powered by Claude
 
 > **Research Intelligence Platform** — Upload academic papers, ask questions, get Claude-powered answers with multi-step reasoning, reflection, and revision.
