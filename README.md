@@ -1,5 +1,8 @@
 # pre---Claude-Hackathon
 
+1. I need Anthropic api key
+2. 
+
 
 AI Research Copilot (Claude + RAG)
 
