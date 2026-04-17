@@ -1,6 +1,6 @@
 
 # 1. go into the folder
-cd vertex_rag   # or whatever your folder is called
+cd vertex rag  
 
 # 2. install dependencies
 pip install -r requirements.txt
