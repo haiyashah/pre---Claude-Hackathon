@@ -23,7 +23,7 @@ rag_index and sample_docs
 
 > **Research Intelligence Platform** — Upload academic papers, ask questions, get Claude-powered answers with multi-step reasoning, reflection, and revision.
 
-Built for the **Claude Builder Club × CMUAI Hackathon** · April 18, 2025
+Built for the **Claude Builder Club × CMUAI Hackathon** · April 18, 2026
 
 ---
 
