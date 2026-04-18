@@ -1,4 +1,4 @@
-# Faculty — A Personal Mentor for Creative Flourishing
+# Latent Map: A project on "Latent Space" in AI and the hidden potential of the student.
 
 > Built at the CMU x Anthropic Claude Builder Club Hackathon, April 2026
 > Theme: Creative Flourishing
