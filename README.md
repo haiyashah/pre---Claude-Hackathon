@@ -215,4 +215,4 @@ Built at CMU x Anthropic Claude Builder Club Hackathon, April 18, 2026.
 
 - GitHub Repo: https://github.com/haiyashah/CMU-Claude-Hackathon/blob/main/README.md
 - Devpost: https://devpost.com/software/the-latent-map
-- Claude API Usage Documentation (Google Doc): [[INSERT LINK]](https://docs.google.com/document/d/14vUC9fUhGSzphqnDjb2fKqh5FeWPryl-AtLFksHCS3Q/edit?tab=t.0#heading=h.wr4mkrbe8g3e)
+- Claude API Usage Documentation (Google Doc): [[LINK]](https://docs.google.com/document/d/14vUC9fUhGSzphqnDjb2fKqh5FeWPryl-AtLFksHCS3Q/edit?tab=t.0#heading=h.wr4mkrbe8g3e)
